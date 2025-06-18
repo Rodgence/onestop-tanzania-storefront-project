@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Package, Plane, Ship, Clock, Shield, Star, Users, Globe, Calculator, Phone, Mail, MapPin } from "lucide-react";
+import { ArrowRight, Package, Plane, Ship, Clock, Shield, Star, Users, Globe, Calculator, Phone, Mail, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 
 const Index = () => {
@@ -26,31 +27,84 @@ const Index = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.05&quot;%3E%3Ccircle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;2&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              From the US to your doorstep in <span className="text-orange-400">Tanzania</span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-2xl mx-auto">
-              Fast, reliable, and affordable shipping solutions. Get your packages delivered safely across Tanzania.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-lg px-8 py-4">
-                Start Shipping <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" className="text-blue-700 border-white hover:bg-white text-lg px-8 py-4">
-                Track Package
-              </Button>
+      <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-20 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                  From the US to your Doorstep in <span className="text-orange-400">Mombasa</span>
+                </h1>
+                <p className="text-xl mb-4 text-blue-100">
+                  in as little as 7 days.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-lg px-8 py-4 rounded-full">
+                  Get our US Address
+                </Button>
+                
+                <div className="flex items-center space-x-2 text-blue-100">
+                  <span>Ocean shipping service</span>
+                  <ArrowRight className="h-4 w-4" />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="mt-16 relative">
-            <img 
-              src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
-              alt="Shipping and logistics" 
-              className="mx-auto rounded-2xl shadow-2xl max-w-2xl w-full opacity-90"
-            />
+
+            {/* Right Side - Pricing Calculator */}
+            <div className="space-y-6">
+              {/* Tabs */}
+              <div className="flex bg-white/10 rounded-lg p-1">
+                <button className="flex-1 bg-white text-blue-600 py-2 px-4 rounded-md font-medium">
+                  Quick Price Estimates
+                </button>
+                <button className="flex-1 text-white py-2 px-4 rounded-md font-medium">
+                  Exact per KG pricing
+                </button>
+              </div>
+
+              {/* Calculator Card */}
+              <Card className="bg-white text-gray-900">
+                <CardContent className="p-6 space-y-4">
+                  <div>
+                    <Select value={destination} onValueChange={setDestination}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Cellphone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cellphone">Cellphone</SelectItem>
+                        <SelectItem value="laptop">Laptop</SelectItem>
+                        <SelectItem value="clothing">Clothing</SelectItem>
+                        <SelectItem value="electronics">Electronics</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="text-center py-6">
+                    <p className="text-gray-600 mb-2">Landed shipping cost starts from</p>
+                    <div className="text-4xl font-bold text-blue-600">$15</div>
+                  </div>
+                  
+                  {/* Product Image with Navigation */}
+                  <div className="relative flex items-center justify-center py-8">
+                    <button className="absolute left-0 p-2 text-gray-400 hover:text-gray-600">
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+                    
+                    <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="w-20 h-24 bg-gray-800 rounded-lg"></div>
+                    </div>
+                    
+                    <button className="absolute right-0 p-2 text-gray-400 hover:text-gray-600">
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
