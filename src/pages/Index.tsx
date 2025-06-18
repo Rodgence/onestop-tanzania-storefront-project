@@ -42,7 +42,7 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.05&quot;%3E%3Ccircle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;2&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -294,7 +294,7 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-gray-600 mb-4">
-                  "Onestop Store made shipping to Dar es Salaam so easy. My packages arrived in perfect condition and ahead of schedule!"
+                  &quot;Onestop Store made shipping to Dar es Salaam so easy. My packages arrived in perfect condition and ahead of schedule!&quot;
                 </p>
                 <div className="flex items-center justify-center space-x-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -316,7 +316,7 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-gray-600 mb-4">
-                  "Excellent service! The tracking system kept me informed throughout, and the customer service team was very helpful."
+                  &quot;Excellent service! The tracking system kept me informed throughout, and the customer service team was very helpful.&quot;
                 </p>
                 <div className="flex items-center justify-center space-x-3">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -338,7 +338,7 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-gray-600 mb-4">
-                  "Best shipping rates I've found for Tanzania. Professional service and my electronics arrived safely."
+                  &quot;Best shipping rates I&apos;ve found for Tanzania. Professional service and my electronics arrived safely.&quot;
                 </p>
                 <div className="flex items-center justify-center space-x-3">
                   <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
@@ -404,7 +404,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600">
-                    You'll receive a tracking number once your package is shipped. You can track your package in real-time through our website or mobile app.
+                    You&apos;ll receive a tracking number once your package is shipped. You can track your package in real-time through our website or mobile app.
                   </p>
                 </CardContent>
               </Card>
