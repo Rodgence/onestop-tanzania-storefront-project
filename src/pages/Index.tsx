@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +12,27 @@ const Index = () => {
   const [weight, setWeight] = useState('');
   const [destination, setDestination] = useState('');
   const [serviceType, setServiceType] = useState('');
+  const [currentRegionIndex, setCurrentRegionIndex] = useState(0);
+
+  const tanzaniaRegions = [
+    'Dar es Salaam',
+    'Dodoma',
+    'Arusha',
+    'Kilimanjaro',
+    'Mwanza',
+    'Mbeya',
+    'Morogoro'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentRegionIndex((prevIndex) => 
+        (prevIndex + 1) % tanzaniaRegions.length
+      );
+    }, 2000); // Change every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [tanzaniaRegions.length]);
 
   const calculateCost = () => {
     if (!weight || !destination || !serviceType) return 0;
@@ -34,7 +54,10 @@ const Index = () => {
             <div className="space-y-8">
               <div>
                 <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                  From the US to your Doorstep in <span className="text-orange-400">Mombasa</span>
+                  From the US to your Doorstep in{' '}
+                  <span className="text-orange-400 inline-block min-w-[280px] transition-all duration-500 ease-in-out">
+                    {tanzaniaRegions[currentRegionIndex]}
+                  </span>
                 </h1>
                 <p className="text-xl mb-4 text-blue-100">
                   in as little as 7 days.
