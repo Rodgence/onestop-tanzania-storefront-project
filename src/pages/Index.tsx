@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRight, Package, Plane, Ship, Clock, Shield, Star, Users, Globe, Calculator, Phone, Mail, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 
@@ -12,7 +13,18 @@ const Index = () => {
   const [weight, setWeight] = useState('');
   const [destination, setDestination] = useState('');
   const [serviceType, setServiceType] = useState('');
+  const [displayText, setDisplayText] = useState('');
   const [currentRegionIndex, setCurrentRegionIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Calculator states
+  const [activeTab, setActiveTab] = useState('quick');
+  const [length, setLength] = useState('');
+  const [width, setWidth] = useState('');
+  const [height, setHeight] = useState('');
+  const [actualWeight, setActualWeight] = useState('');
+  const [addHomeDelivery, setAddHomeDelivery] = useState(false);
+  const [addShipmentProtection, setAddShipmentProtection] = useState(false);
 
   const tanzaniaRegions = [
     'Dar es Salaam',
@@ -25,14 +37,38 @@ const Index = () => {
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentRegionIndex((prevIndex) => 
-        (prevIndex + 1) % tanzaniaRegions.length
-      );
-    }, 2000); // Change every 2 seconds
+    const currentRegion = tanzaniaRegions[currentRegionIndex];
+    let timeout: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
-  }, [tanzaniaRegions.length]);
+    if (isDeleting) {
+      // Deleting characters
+      if (displayText.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayText(displayText.slice(0, -1));
+        }, 50); // Speed of deletion
+      } else {
+        // Finished deleting, move to next region
+        setIsDeleting(false);
+        setCurrentRegionIndex((prevIndex) => 
+          (prevIndex + 1) % tanzaniaRegions.length
+        );
+      }
+    } else {
+      // Typing characters
+      if (displayText.length < currentRegion.length) {
+        timeout = setTimeout(() => {
+          setDisplayText(currentRegion.slice(0, displayText.length + 1));
+        }, 100); // Speed of typing
+      } else {
+        // Finished typing, wait then start deleting
+        timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2000); // Pause before deleting
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, currentRegionIndex, tanzaniaRegions]);
 
   const calculateCost = () => {
     if (!weight || !destination || !serviceType) return 0;
@@ -41,13 +77,47 @@ const Index = () => {
     return (baseRate * weightNum * 1.2).toFixed(2);
   };
 
+  // Calculate volumetric weight (L x W x H in inches / 166 for air freight)
+  const calculateVolumetricWeight = () => {
+    if (!length || !width || !height) return 0;
+    const volumetricWeight = (parseFloat(length) * parseFloat(width) * parseFloat(height)) / 166;
+    return volumetricWeight * 0.453592; // Convert pounds to kg
+  };
+
+  // Get chargeable weight (higher of actual or volumetric)
+  const getChargeableWeight = () => {
+    const actualWt = parseFloat(actualWeight) || 0;
+    const volumetricWt = calculateVolumetricWeight();
+    return Math.max(actualWt, volumetricWt);
+  };
+
+  // Calculate total cost for exact pricing
+  const calculateExactCost = () => {
+    const chargeableWeight = getChargeableWeight();
+    if (chargeableWeight === 0) return 0;
+    
+    // $20/pound = $44.09/kg (approximately)
+    const ratePerKg = 44.09;
+    let totalCost = chargeableWeight * ratePerKg;
+    
+    // Add optional services
+    if (addHomeDelivery) {
+      totalCost += 25; // $25 for home delivery
+    }
+    if (addShipmentProtection) {
+      totalCost += totalCost * 0.02; // 2% of shipping cost for protection
+    }
+    
+    return totalCost;
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-20 overflow-hidden pt-32">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
@@ -55,8 +125,9 @@ const Index = () => {
               <div>
                 <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
                   From the US to your Doorstep in{' '}
-                  <span className="text-orange-400 inline-block min-w-[280px] transition-all duration-500 ease-in-out">
-                    {tanzaniaRegions[currentRegionIndex]}
+                  <span className="text-orange-400 inline-block min-w-[280px] relative">
+                    {displayText}
+                    <span className="animate-pulse text-orange-400 ml-1">|</span>
                   </span>
                 </h1>
                 <p className="text-xl mb-4 text-blue-100">
@@ -80,10 +151,24 @@ const Index = () => {
             <div className="space-y-6">
               {/* Tabs */}
               <div className="flex bg-white/10 rounded-lg p-1">
-                <button className="flex-1 bg-white text-blue-600 py-2 px-4 rounded-md font-medium">
+                <button 
+                  className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
+                    activeTab === 'quick' 
+                      ? 'bg-white text-blue-600' 
+                      : 'text-white hover:bg-white/20'
+                  }`}
+                  onClick={() => setActiveTab('quick')}
+                >
                   Quick Price Estimates
                 </button>
-                <button className="flex-1 text-white py-2 px-4 rounded-md font-medium">
+                <button 
+                  className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
+                    activeTab === 'exact' 
+                      ? 'bg-white text-blue-600' 
+                      : 'text-white hover:bg-white/20'
+                  }`}
+                  onClick={() => setActiveTab('exact')}
+                >
                   Exact per KG pricing
                 </button>
               </div>
@@ -91,40 +176,126 @@ const Index = () => {
               {/* Calculator Card */}
               <Card className="bg-white text-gray-900">
                 <CardContent className="p-6 space-y-4">
-                  <div>
-                    <Select value={destination} onValueChange={setDestination}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Cellphone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="cellphone">Cellphone</SelectItem>
-                        <SelectItem value="laptop">Laptop</SelectItem>
-                        <SelectItem value="clothing">Clothing</SelectItem>
-                        <SelectItem value="electronics">Electronics</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="text-center py-6">
-                    <p className="text-gray-600 mb-2">Landed shipping cost starts from</p>
-                    <div className="text-4xl font-bold text-blue-600">$15</div>
-                  </div>
-                  
-                  {/* Product Image with Navigation */}
-                  <div className="relative flex items-center justify-center py-8">
-                    <button className="absolute left-0 p-2 text-gray-400 hover:text-gray-600">
-                      <ChevronLeft className="h-6 w-6" />
-                    </button>
-                    
-                    <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <div className="w-20 h-24 bg-gray-800 rounded-lg"></div>
+                  {activeTab === 'quick' ? (
+                    <>
+                      <div>
+                        <Select value={destination} onValueChange={setDestination}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Cellphone" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cellphone">Cellphone</SelectItem>
+                            <SelectItem value="laptop">Laptop</SelectItem>
+                            <SelectItem value="clothing">Clothing</SelectItem>
+                            <SelectItem value="electronics">Electronics</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="text-center py-6">
+                        <p className="text-gray-600 mb-2">Landed shipping cost starts from</p>
+                        <div className="text-4xl font-bold text-blue-600">$15</div>
+                      </div>
+                      
+                      {/* Product Image with Navigation */}
+                      <div className="relative flex items-center justify-center py-8">
+                        <button className="absolute left-0 p-2 text-gray-400 hover:text-gray-600">
+                          <ChevronLeft className="h-6 w-6" />
+                        </button>
+                        
+                        <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-20 h-24 bg-gray-800 rounded-lg"></div>
+                        </div>
+                        
+                        <button className="absolute right-0 p-2 text-gray-400 hover:text-gray-600">
+                          <ChevronRight className="h-6 w-6" />
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Dimensions Input */}
+                      <div className="grid grid-cols-5 gap-2 items-center bg-gray-50 p-3 rounded-lg">
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={length}
+                          onChange={(e) => setLength(e.target.value)}
+                          className="text-center h-10 border-gray-300"
+                        />
+                        <span className="flex items-center justify-center text-gray-400 text-lg">×</span>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={width}
+                          onChange={(e) => setWidth(e.target.value)}
+                          className="text-center h-10 border-gray-300"
+                        />
+                        <span className="flex items-center justify-center text-gray-400 text-lg">×</span>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={height}
+                          onChange={(e) => setHeight(e.target.value)}
+                          className="text-center h-10 border-gray-300"
+                        />
+                      </div>
+
+                      {/* Actual Weight */}
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          value={actualWeight}
+                          onChange={(e) => setActualWeight(e.target.value)}
+                          className="text-center h-10 border-gray-300"
+                        />
+                      </div>
+
+                      {/* Additional Services */}
+                      <div className="space-y-2 text-gray-700">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox 
+                            id="homeDelivery" 
+                            checked={addHomeDelivery}
+                            onCheckedChange={setAddHomeDelivery}
+                            className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white"
+                          />
+                          <label htmlFor="homeDelivery" className="text-sm cursor-pointer">
+                            Add Home delivery Cost: $25
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Checkbox 
+                            id="shipmentProtection" 
+                            checked={addShipmentProtection}
+                            onCheckedChange={setAddShipmentProtection}
+                            className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white"
+                          />
+                          <label htmlFor="shipmentProtection" className="text-sm cursor-pointer">
+                            Add Shipment Protection: 2% of shipping cost
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Total Cost */}
+                      <div className="text-gray-900 pt-4">
+                        <div className="text-lg font-bold">
+                          All-inclusive cost with no hidden charges: ${calculateExactCost().toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Info Footer */}
+                      <div className="text-gray-600 text-xs">
+                        <p>
+                          This shipping quote is based on our rate of $44.09/KG (equivalent to $20/pound). 
+                          <a href="#" className="text-blue-600 underline">Click here</a> to learn more about what is included in the cost.
+                        </p>
+                      </div>
                     </div>
-                    
-                    <button className="absolute right-0 p-2 text-gray-400 hover:text-gray-600">
-                      <ChevronRight className="h-6 w-6" />
-                    </button>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
